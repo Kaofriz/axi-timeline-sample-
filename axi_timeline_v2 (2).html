@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Philosophy & AXI — Comparative Timeline</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap');
+
+:root {
+  --bg: #141414;
+  --paper: #1e1e1e;
+  --ink: #f5f2ee;
+  --ink-dim: #d0ccc6;
+  --ink-faint: #a0a0a0;
+  --rule: #2e2e2e;
+  --accent: #c87941;
+  --accent-light: #2a2018;
+
+  --tag-p: #4a8fc4;
+  --tag-r: #a05cc4;
+  --tag-s: #4aaa6a;
+  --tag-w: #c45a5a;
+  --tag-a: #c4a040;
+  --tag-o: #6aaa90;
+
+  --serif: 'Inter', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  min-height: 100vh;
+  padding: 48px 32px 80px;
+}
+
+.page-header {
+  max-width: 960px;
+  margin: 0 auto 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--ink);
+}
+
+.page-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 10px;
+}
+
+.page-title {
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  font-weight: 300;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.page-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-dim);
+  line-height: 1.8;
+}
+
+.sample-note {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 2px;
+  margin-bottom: 14px;
+}
+
+/* Controls */
+.controls {
+  max-width: 960px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.view-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.view-btn {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: 6px 14px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink-dim);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s;
+}
+
+.view-btn.active {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+.view-btn:hover:not(.active) {
+  border-color: var(--ink-dim);
+  color: var(--ink);
+}
+
+.expand-hint {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-faint);
+  margin-left: auto;
+}
+
+/* Legend */
+.legend {
+  max-width: 960px;
+  margin: 0 auto 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 12px 16px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  transition: opacity 0.2s;
+}
+
+.legend.hidden { opacity: 0; pointer-events: none; }
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-dim);
+}
+
+.tag-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Timeline */
+.timeline {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.col-headers {
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 0;
+}
+
+.col-h {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  padding: 10px 16px 10px 0;
+}
+.col-h:not(:first-child) { padding-left: 16px; }
+
+.era-header {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 20px 0 8px;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* Row */
+.tl-row {
+  border-bottom: 1px solid var(--rule);
+  cursor: default;
+  transition: background 0.1s;
+}
+
+.tl-row.expandable { cursor: pointer; }
+.tl-row.expandable:hover .tl-main { background: rgba(139,69,19,0.03); }
+
+.tl-main {
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr;
+  min-height: 52px;
+  transition: background 0.1s;
+}
+
+/* Date */
+.tl-date {
+  padding: 14px 16px 14px 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+  border-right: 1px solid var(--rule);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 16px;
+  line-height: 1.5;
+}
+
+/* Thinker */
+.tl-thinker {
+  padding: 13px 16px;
+  border-right: 1px solid var(--rule);
+}
+
+.thinker-name {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+
+.thinker-region {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+}
+
+.thinker-note {
+  font-size: 12px;
+  color: var(--ink-dim);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.pending .thinker-name { font-style: italic; opacity: 0.55; }
+.pending .thinker-note { opacity: 0.55; }
+
+/* Events */
+.tl-events {
+  padding: 13px 16px;
+  position: relative;
+}
+
+.expand-indicator {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink-faint);
+  transition: transform 0.2s;
+  display: none;
+}
+
+.tl-row.expandable .expand-indicator { display: block; }
+.tl-row.open .expand-indicator { transform: translateY(-50%) rotate(45deg); }
+
+.event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.event-item:last-child { margin-bottom: 0; }
+
+.event-tags {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.tag {
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 7px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.tag-p { background: var(--tag-p); }
+.tag-r { background: var(--tag-r); }
+.tag-s { background: var(--tag-s); }
+.tag-w { background: var(--tag-w); }
+.tag-a { background: var(--tag-a); }
+.tag-o { background: var(--tag-o); }
+
+/* Hide tags in view 1 */
+body.view1 .event-tags { display: none; }
+body.view1 .expand-indicator { display: none !important; }
+
+.event-text {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-dim);
+}
+
+/* AXI source */
+.axi-source {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+/* Accordion panel */
+.accordion-panel {
+  display: none;
+  background: var(--accent-light);
+  border-top: 1px solid var(--rule);
+  padding: 0;
+}
+
+.tl-row.open .accordion-panel { display: block; }
+
+.acc-inner {
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr;
+  padding: 0;
+}
+
+.acc-spacer {
+  border-right: 1px solid var(--rule);
+}
+
+.acc-content {
+  grid-column: 2 / 4;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+.acc-block { }
+
+.acc-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+
+.acc-text {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-dim);
+}
+
+/* View 1: hide accordion entirely */
+body.view1 .accordion-panel { display: none !important; }
+
+footer {
+  max-width: 960px;
+  margin: 48px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-faint);
+  line-height: 2;
+}
+</style>
+</head>
+<body class="view2">
+
+<div class="page-header">
+  <div class="sample-note">Sample — for AXI paper reference</div>
+  <div class="page-label">AXI · Philosophy & Thought · Comparative Timeline</div>
+  <h1 class="page-title">A Map of Ideas:<br>Different Answers to the Same Questions</h1>
+  <p class="page-sub">
+    Left: Thinkers & philosophical traditions &nbsp;·&nbsp; Right: Related events & context (tagged)<br>
+    View 2: click any row to expand AXI comparison · Greyed entries: to be developed
+  </p>
+</div>
+
+<div class="controls">
+  <span class="view-label">View —</span>
+  <button class="view-btn" id="btn1" onclick="setView(1)">① Simple</button>
+  <button class="view-btn active" id="btn2" onclick="setView(2)">② Tags + AXI detail</button>
+  <span class="expand-hint" id="hint">↓ click any row to expand</span>
+</div>
+
+<div class="legend" id="legend">
+  <div class="legend-item"><div class="tag-dot" style="background:var(--tag-p)"></div>Ⓟ Philosophy</div>
+  <div class="legend-item"><div class="tag-dot" style="background:var(--tag-r)"></div>Ⓡ Religion & Power</div>
+  <div class="legend-item"><div class="tag-dot" style="background:var(--tag-s)"></div>Ⓢ Science & Tech</div>
+  <div class="legend-item"><div class="tag-dot" style="background:var(--tag-w)"></div>Ⓦ Politics & War</div>
+  <div class="legend-item"><div class="tag-dot" style="background:var(--tag-a)"></div>Ⓐ Arts & Culture</div>
+  <div class="legend-item"><div class="tag-dot" style="background:var(--tag-o)"></div>Ⓞ Oral / Indigenous</div>
+</div>
+
+<div class="timeline">
+<div class="col-headers">
+  <div class="col-h">Period</div>
+  <div class="col-h">Thinkers & Traditions</div>
+  <div class="col-h">Related Context</div>
+</div>
+
+<!-- ANCIENT -->
+<div class="era-header">— Ancient World · before 500 BCE</div>
+
+<!-- Vedas -->
+<div class="tl-row">
+  <div class="tl-main">
+    <div class="tl-date">c. 1500 BCE</div>
+    <div class="tl-thinker pending">
+      <div class="thinker-name">Vedas & Upanishads</div>
+      <div class="thinker-region">India</div>
+      <div class="thinker-note">Brahman–Atman unity; śūnya / zero lineage begins</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-o">Ⓞ</span><span class="tag tag-r">Ⓡ</span></div>
+        <div class="event-text">Oral transmission of sacred knowledge; root of Indian philosophical lineage</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- I Ching -->
+<div class="tl-row">
+  <div class="tl-main">
+    <div class="tl-date">c. 1000 BCE</div>
+    <div class="tl-thinker pending">
+      <div class="thinker-name">I Ching (易経)</div>
+      <div class="thinker-region">China</div>
+      <div class="thinker-note">Systematic thinking on change, duality, and pattern</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-o">Ⓞ</span><span class="tag tag-p">Ⓟ</span></div>
+        <div class="event-text">Binary structure prefigures axes-based thinking; Zhou dynasty oracle tradition</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Celtic -->
+<div class="tl-row">
+  <div class="tl-main">
+    <div class="tl-date">c. 700 BCE</div>
+    <div class="tl-thinker pending">
+      <div class="thinker-name">Celtic / Druidic tradition</div>
+      <div class="thinker-region">W. Europe, Ireland</div>
+      <div class="thinker-note">Oral knowledge; sacred nature; fluid time (Samhain)</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-o">Ⓞ</span><span class="tag tag-a">Ⓐ</span></div>
+        <div class="event-text">Deliberate non-writing — knowledge lives in relationship, not fixed text</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AXIAL AGE -->
+<div class="era-header">— Axial Age · c. 600–300 BCE</div>
+
+<!-- Laozi -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">c. 500 BCE</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Laozi (老子) <span class="axi-source">AXI source ①</span></div>
+      <div class="thinker-region">China</div>
+      <div class="thinker-note">道可道，非恒道 — The speakable Tao is not the possible Tao (Yasutomi reading). Axes as open possibility.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-w">Ⓦ</span></div>
+        <div class="event-text">Spring & Autumn period — collapse of Zhou order; thought explosion mirrors crisis</div>
+      </div>
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-p">Ⓟ</span></div>
+        <div class="event-text">Hundred Schools of Thought (諸子百家) — parallel philosophical flowering</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">First philosophical source of AXI. "Defined = dead" matches AXI's provisional axis model. Meta-perspective as opening, not closing.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Releasing attachment to fixed frames. Reducing over-determination. Recovery from single-axis fixation.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Laozi reaches meta and stays — non-action, silence. AXI cycles between meta and micro, operating provisionally at each level.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Confucius -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">c. 500 BCE</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Confucius (孔子)</div>
+      <div class="thinker-region">China</div>
+      <div class="thinker-note">Ren (仁) & Li (礼): responses calibrated to each interlocutor. Original teaching vs. later institutionalisation.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-r">Ⓡ</span><span class="tag tag-w">Ⓦ</span></div>
+        <div class="event-text">Confucianism as state ideology (Han dynasty, 206 BCE) — coordinate transformation: dynamic teaching → fixed hierarchy</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Original Confucius: different responses for different interlocutors = local optimisation in practice. Li (礼) as shared coordinate system enabling communication efficiency.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Shared coordinate protocol within a group. Organisational efficiency. Formatted communication (academic writing, ceremony).</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">When Li is absolutised, it becomes an exclusionary power apparatus. AXI uses shared coordinates locally while retaining meta-perspective to relativise them.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Zhuangzi -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">c. 300 BCE</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Zhuangzi (荘子)</div>
+      <div class="thinker-region">China</div>
+      <div class="thinker-note">Butterfly dream: observer coordinates are unfixable. "Uselessness of the useless" — multi-axis valuation.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-p">Ⓟ</span></div>
+        <div class="event-text">Daoist literary tradition — playful, paradoxical, anti-systematic; knowledge as lived experience</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Observer relativity (butterfly dream) = AXES observer-coordinate model. "Useless" from one axis = valuable from another — clearest pre-modern statement of multi-axis evaluation.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Releasing attachment to single-axis judgement. Creative and philosophical inquiry. Countering over-systematisation.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Zhuangzi dissolves boundaries but offers no return path. AXES provides provisional coordinates after boundary-dissolution — "now we know we're lost; here is a temporary map."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Socrates / Plato / Aristotle -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">470–322 BCE</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Socrates · Plato · Aristotle</div>
+      <div class="thinker-region">Greece</div>
+      <div class="thinker-note">Socrates: aporia as difference-recognition. Plato: fixed Idea. Aristotle: empirical classification, single-view limit.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-a">Ⓐ</span><span class="tag tag-p">Ⓟ</span></div>
+        <div class="event-text">Athenian democracy & theatre — public space for contested ideas</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Socrates: "knowing you don't know" = recognising the gap between self and truth — difference-recognition. Aristotle: observation first, system second — matches AXI's empirical axis-generation.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Socratic method: education, guided inquiry. Aristotle: within-domain classification and deepening. Plato: ideal-type comparison for design and evaluation.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Plato's fixed Idea = absolute external axis; AXI's axes are generated and provisional. Aristotle cannot exit his own classification frame. Socrates steers toward a predetermined truth.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLASSICAL -->
+<div class="era-header">— Classical & Early Common Era · 300 BCE – 500 CE</div>
+
+<!-- Nagarjuna -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">c. 200 CE</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Nāgārjuna (龍樹) <span class="axi-source">AXI source ②</span></div>
+      <div class="thinker-region">India</div>
+      <div class="thinker-note">Śūnyatā: no axis has fixed substance. Two-truths: meta-relative / locally absolute. Zero lineage.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-s">Ⓢ</span><span class="tag tag-o">Ⓞ</span></div>
+        <div class="event-text">Silk Road at peak — zero concept begins moving between India, China, Persia, and eventually Europe</div>
+      </div>
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-r">Ⓡ</span></div>
+        <div class="event-text">Mahāyāna Buddhism spreads across Central Asia toward China</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Two-truths doctrine is structurally identical to AXI: meta-level = all axes are relative (śūnya); local level = axes operate as provisional absolutes. Second philosophical source of AXI.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Philosophical grounding for non-attachment to fixed frames while still functioning in the world. Foundation for AXI's "provisional coordinate operation."</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Two-truths in service of liberation (moksha). AXI uses the same structure for practical coordinate operation and sustained engagement — not liberation, but continuous combustion.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Augustine -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">354–430 CE</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Augustine of Hippo</div>
+      <div class="thinker-region">North Africa / Rome</div>
+      <div class="thinker-note">Time as structure of mind: memory / attention / expectation. Precursor to Kant's time-axis.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-w">Ⓦ</span><span class="tag tag-r">Ⓡ</span></div>
+        <div class="event-text">Fall of Western Rome (476 CE) — coordinate collapse; Church fills vacuum</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Time located inside the mind — resonates with AXI's view that the time-axis is generated through experience (memory), not innate. Earliest Western version of this claim.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Christian faith context. Inner-life orientation. Stability through absolute axis for those in crisis.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Total dependence on God as absolute axis. AXI holds no absolute axis; even time is a provisional coordinate generated post-experientially.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MEDIEVAL -->
+<div class="era-header">— Medieval · 600–1400 CE</div>
+
+<!-- Islamic Golden Age -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">8–13c CE</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Islamic Golden Age</div>
+      <div class="thinker-region">Baghdad / Middle East</div>
+      <div class="thinker-note">Al-Kindi, Ibn Sina, Ibn Rushd. Greek philosophy preserved & extended. Zero transmitted to Europe.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-s">Ⓢ</span><span class="tag tag-a">Ⓐ</span></div>
+        <div class="event-text">House of Wisdom — multi-cultural translation hub; Greek + Indian + Persian synthesis</div>
+      </div>
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-w">Ⓦ</span></div>
+        <div class="event-text">Mongol destruction of Baghdad (1258) — intellectual closure; coordinate transformation of Islamic thought</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Monotheistic yet intellectually open — actively absorbed knowledge across cultural axes. Bridged Indian zero / Greek logic / Persian astronomy. Highest pre-modern example of multi-axis integration.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Cross-cultural knowledge synthesis. Translation and transmission. Scientific and philosophical bridge between ancient and modern.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Closure after Mongol destruction shows vulnerability of institutionalised knowledge. Same single-axis fixation risk: power monopolises what counts as knowledge.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Aquinas -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">13c CE</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Thomas Aquinas</div>
+      <div class="thinker-region">Italy</div>
+      <div class="thinker-note">Reason deployed to prove a pre-set conclusion. Aristotle via Ibn Rushd.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-r">Ⓡ</span><span class="tag tag-p">Ⓟ</span></div>
+        <div class="event-text">University system emerges — knowledge institutionalised under Church authority; scholasticism as epistemic protocol</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Systematic attempt to integrate Aristotle's empiricism with theology — cross-tradition synthesis has value. The logical apparatus is impressive even if the conclusion is pre-determined.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Within a shared faith coordinate system. Internal coherence of a belief structure. Useful where God-axis is already shared.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Conclusion precedes evidence — absolute axis is the premise, not the finding. AXI generates axes from difference-contact; no conclusion is fixed in advance.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EARLY MODERN -->
+<div class="era-header">— Early Modern · 1300–1700</div>
+
+<!-- Renaissance -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">14–16c</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Renaissance</div>
+      <div class="thinker-region">Italy / Europe</div>
+      <div class="thinker-note">Shift from God-centred to human-centred axis. New absolute replaces old absolute.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-w">Ⓦ</span><span class="tag tag-r">Ⓡ</span></div>
+        <div class="event-text">Black Death (1347–51) — 1/3 of Europe lost; Church authority shaken; same crisis-then-flowering pattern as Axial Age</div>
+      </div>
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-s">Ⓢ</span><span class="tag tag-a">Ⓐ</span></div>
+        <div class="event-text">Gutenberg press (c.1440) & Medici patronage — knowledge diffusion; art, anatomy, perspective as empirical inquiry</div>
+      </div>
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-s">Ⓢ</span></div>
+        <div class="event-text">Copernicus (1543) — fixed Earth-axis dismantled; "Copernican turn" later echoed by Kant</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Collapse of existing absolute axis (Church) followed by explosion of new axes — identical pattern to Axial Age and Hundred Schools. Crisis generates epistemic diversity.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Transition periods. Cross-disciplinary synthesis. Conditions where patronage enables experimental inquiry without fixed institutional constraint.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Human-centrism replaces God-centrism — same absolute axis structure, different content. AXI does not replace one absolute with another; it pluralises axes provisionally.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Descartes -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">17c</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Descartes · Hume</div>
+      <div class="thinker-region">France / Scotland</div>
+      <div class="thinker-note">Descartes: subject as fixed origin. Hume: causality as habit — radical empiricism.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-s">Ⓢ</span></div>
+        <div class="event-text">Newton's Principia (1687) — classical mechanics as local absolute; later relativised by Einstein</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Hume's radical doubt of causality — "self-evident structures may be habits" — aligns with AXI's refusal to treat any axis as innate. Starting from doubt is a form of difference-recognition.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Descartes: establishing stable ground when all else is uncertain. Hume: questioning over-confident causal claims.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Descartes fixes "subject" as absolute starting point. AXI treats the subject as one axis among many. Hume's scepticism, taken too far, dissolves the ground for any provisional operation — AXI retains it.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODERN -->
+<div class="era-header">— Modern · 1700–1900</div>
+
+<!-- Kant -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">18c</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Kant</div>
+      <div class="thinker-region">Prussia</div>
+      <div class="thinker-note">Cognitive frameworks precede experience (a priori). "Container before content." AXI: containers are generated by difference-contact, not innate.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-w">Ⓦ</span><span class="tag tag-p">Ⓟ</span></div>
+        <div class="event-text">French Revolution (1789) — Enlightenment ideals in political reality; "human rights" as new shared axis</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">"Container (framework) first" insight is correct and important — how we perceive depends on what axes we already have. Copernican turn: cognition shapes what is seen, not the reverse.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Explaining why different observers reach different conclusions from the same phenomenon. Grounding for epistemic humility.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Kant treats time / space / causality as innate (a priori). AXI: all axes are generated through experience — including time (which requires memory). No fixed container comes pre-installed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hegel Marx Nietzsche -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">19c</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Hegel · Marx · Nietzsche</div>
+      <div class="thinker-region">Germany</div>
+      <div class="thinker-note">Hegel: contradiction as fuel. Marx: material axis privileged. Nietzsche: God dead → sought new absolute → structural collapse.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-s">Ⓢ</span><span class="tag tag-w">Ⓦ</span></div>
+        <div class="event-text">Industrial Revolution — technology reshapes social axes; labour / capital divide emerges</div>
+      </div>
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-s">Ⓢ</span></div>
+        <div class="event-text">Darwin's Origin of Species (1859) — biological axis of diversity as resilience; reinforces AXI's difference-as-condition-of-knowledge</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Hegel: contradiction (difference) as the engine of progress — AXI agrees. Marx: material conditions shape thought — one valid axis. Nietzsche: value must be self-generated, not inherited — resonates with AXI's axis-generation model.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Hegel: historical and dialectical analysis. Marx: economic and structural critique. Nietzsche: confronting value-vacuum after absolute loss.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">All three privilege a single axis (Spirit / economy / will). AXI treats each as locally valid, not universally dominant. Nietzsche's breakdown illustrates the risk of seeking a new absolute rather than pluralising axes.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 20TH CENTURY -->
+<div class="era-header">— 20th Century</div>
+
+<!-- Einstein -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">1905–1915</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Einstein <span class="axi-source">AXI source ③</span></div>
+      <div class="thinker-region">Germany / Switzerland</div>
+      <div class="thinker-note">No absolute frame. Values are relative; local optimisation valid within defined domain. Scientific foundation for AXI's coordinate model.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-s">Ⓢ</span></div>
+        <div class="event-text">Quantum mechanics (1920s) — observer affects observation; reinforces situated knowledge; Newtonian mechanics remains valid locally</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Relativity = different observers, different coordinate systems, different values — all equally valid. Classical mechanics as local optimisation within its domain. Third and scientific source of AXI.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Physical science. Philosophical grounding for value-relativity. The Newton / Einstein example is AXI's clearest illustration of local optimisation.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Relativity describes physical reality. AXI extends the coordinate-system insight to epistemology, ethics, culture, and AI alignment — applying the structure beyond physics.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Post-structuralism -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">20c mid–late</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Wittgenstein · Lévi-Strauss · Foucault · Derrida</div>
+      <div class="thinker-region">Europe</div>
+      <div class="thinker-note">Language / structure / power / différance. Meaning unfixable. AXI: agrees — but proposes provisional coordinate operation rather than silence or deconstruction alone.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-s">Ⓢ</span></div>
+        <div class="event-text">Computing & information theory (Turing, Shannon, 1940s–50s) — new axis of machine cognition emerges</div>
+      </div>
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-w">Ⓦ</span></div>
+        <div class="event-text">Cold War — liberal-individualist vs. collectivist epistemic premises in global confrontation</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Derrida: meaning drifts — matches AXI's provisional axis model. Foucault: knowledge-power entanglement — axis-setting is always a political act. Lévi-Strauss: deep structural patterns across cultures — AXI calls this shared axis-generation mechanism.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Deconstructing fixed meanings. Exposing power embedded in knowledge claims. Identifying cross-cultural structural commonalities.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">Deconstruction without construction leaves no operational ground. AXI: after exposing that axes are provisional, we still need to choose and use them. Silence (Wittgenstein) and endless deferral (Derrida) are not sufficient for practice.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEMPORARY -->
+<div class="era-header">— Contemporary · 2000s–</div>
+
+<!-- Speculative realism etc -->
+<div class="tl-row expandable" onclick="toggle(this)">
+  <div class="tl-main">
+    <div class="tl-date">2000s–</div>
+    <div class="tl-thinker">
+      <div class="thinker-name">Meillassoux · Harman · Morton · Gabriel</div>
+      <div class="thinker-region">France / USA / Germany</div>
+      <div class="thinker-note">Post-human turn; objects relate without human observers; dark ecology; no meta-frame contains all. Converges with AXI from a Western path.</div>
+    </div>
+    <div class="tl-events">
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-s">Ⓢ</span></div>
+        <div class="event-text">Large language models (2017–) — high-dimensional feature spaces already encode coordinate structures; AXES proposes making them explicit and shareable</div>
+      </div>
+      <div class="event-item">
+        <div class="event-tags"><span class="tag tag-p">Ⓟ</span></div>
+        <div class="event-text">AXI / AXES proposed (2026) — coordinate protocol for human↔human, human↔AI, AI↔AI communication across all three layers</div>
+      </div>
+      <span class="expand-indicator">+</span>
+    </div>
+  </div>
+  <div class="accordion-panel">
+    <div class="acc-inner">
+      <div class="acc-spacer"></div>
+      <div class="acc-content">
+        <div class="acc-block">
+          <div class="acc-label">Resonance with AXI</div>
+          <div class="acc-text">Harman OOO: non-human actors have their own coordinate relations — AXES extends to AI and objects. Morton: humans are one node in a mesh, not the centre. Gabriel: no meta-frame contains all — AXI agrees, and this is why AXES maps locally rather than universally.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Effective domain</div>
+          <div class="acc-text">Post-anthropocentric ethics. Ecological thinking. Multi-agent AI systems. Situations requiring non-human perspectives.</div>
+        </div>
+        <div class="acc-block">
+          <div class="acc-label">Difference from AXI</div>
+          <div class="acc-text">These Western thinkers arrive at similar positions through long philosophical detour. AXI synthesises them with Laozi, Nāgārjuna, and Einstein, and adds a practical coordinate protocol — AXES — for operationalisation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /timeline -->
+
+<footer>
+  AXI · Philosophy & AXI Comparative Timeline · Sample for AXI paper (Draft v0.3, 2026)<br>
+  Full interactive version in development · Oral / indigenous traditions (Ⓞ) to be expanded in subsequent work<br>
+  Related: AXES: Axes of Epistemic System (Draft v0.6, 2026.03.28) — Zenodo DOI: 10.5281/zenodo.19264332
+</footer>
+
+<script>
+function toggle(row) {
+  if (document.body.classList.contains('view1')) return;
+  row.classList.toggle('open');
+}
+
+function setView(n) {
+  document.body.className = 'view' + n;
+  document.getElementById('btn1').classList.toggle('active', n === 1);
+  document.getElementById('btn2').classList.toggle('active', n === 2);
+  document.getElementById('hint').style.display = n === 1 ? 'none' : 'inline';
+  document.getElementById('legend').classList.toggle('hidden', n === 1);
+  if (n === 1) {
+    document.querySelectorAll('.tl-row').forEach(r => r.classList.remove('open'));
+  }
+}
+</script>
+</body>
+</html>
