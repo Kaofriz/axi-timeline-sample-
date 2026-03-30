@@ -24,6 +24,12 @@ TagCategoryⓅPhilosophy & ThoughtⓇReligion & PowerⓈScience & TechnologyⓌP
 Three sources of AXI
 SourceThinkerKey insight①Laozi (老子)Axes as open possibility, not fixed truth②Nāgārjuna (龍樹)Two-truths: meta-relative / locally absolute③EinsteinNo absolute frame; local optimisation is valid
 
+Coordinate Map (View ③) — Notes
+The coordinate values assigned to each thinker are provisional and intended for discussion only. They do not represent definitive or authoritative classifications.
+Points vs Areas: A point indicates a relatively localised position on the selected axes. An area indicates that the thinker's thought spans a range — either across multiple domains, or because the position genuinely varies by context.
+Axes: The three axes shown are one example set. In AXI/AXES, axes are not fixed — they should be chosen freely according to the purpose of the analysis. Different questions call for different axes.
+Why AXI spans all domains: This does not mean AXI claims to be superior or universally correct. AXI is the philosophical principle underlying AXES, a coordinate system for mapping epistemic positions. A coordinate system itself has no fixed position within the space it describes — it is the framework, not a point within it.
+
 Author
 Kaori Frizelle — Independent Researcher, Ireland
 
