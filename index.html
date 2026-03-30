@@ -8,21 +8,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400&display=swap');
 
 :root {
-  --bg: #141414;
-  --paper: #1e1e1e;
-  --ink: #f5f2ee;
-  --ink-dim: #d0ccc6;
-  --ink-faint: #a0a0a0;
-  --rule: #2e2e2e;
-  --accent: #c87941;
-  --accent-light: #2a2018;
+  --bg: #f7f4ee;
+  --paper: #fdfcf8;
+  --ink: #1a1814;
+  --ink-dim: #6b6459;
+  --ink-faint: #b8b0a4;
+  --rule: #ddd8ce;
+  --accent: #8b4513;
+  --accent-light: #f0e8df;
 
-  --tag-p: #4a8fc4;
-  --tag-r: #a05cc4;
-  --tag-s: #4aaa6a;
-  --tag-w: #c45a5a;
-  --tag-a: #c4a040;
-  --tag-o: #6aaa90;
+  --tag-p: #2c5f8a;
+  --tag-r: #6b3280;
+  --tag-s: #2a7a4a;
+  --tag-w: #8a2c2c;
+  --tag-a: #7a5c1e;
+  --tag-o: #4a6b5c;
 
   --serif: 'Inter', sans-serif;
   --mono: 'JetBrains Mono', monospace;
@@ -391,6 +391,134 @@ footer {
   color: var(--ink-faint);
   line-height: 2;
 }
+
+/* ── View 3: Coordinate Mapping ── */
+#view-map, #view-geo { display: none; max-width: 960px; margin: 0 auto; }
+body.view3 #view-map { display: block; }
+body.view4 #view-geo { display: block; }
+body.view3 .timeline, body.view4 .timeline,
+body.view3 .col-headers, body.view4 .col-headers { display: none; }
+body.view3 footer, body.view4 footer { display: none; }
+
+.map-disclaimer {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 6px 12px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+  display: inline-block;
+  letter-spacing: 0.08em;
+}
+
+.axis-selector {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.axis-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.axis-select {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.coord-canvas-wrap {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+#coordCanvas {
+  display: block;
+  width: 100%;
+  height: 580px;
+}
+
+.coord-info {
+  margin-top: 16px;
+  min-height: 80px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 14px 16px;
+}
+
+.coord-info-empty {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+}
+
+.coord-info-content { display: none; }
+.coord-info-content.active { display: block; }
+
+.info-name {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.info-coords {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--ink-dim);
+  margin-bottom: 8px;
+  letter-spacing: 0.08em;
+}
+
+.info-desc {
+  font-size: 12px;
+  color: var(--ink-dim);
+  line-height: 1.6;
+}
+
+.compare-banner {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  margin-top: 6px;
+}
+
+/* ── View 4: World Map ── */
+#map-leaflet {
+  width: 100%;
+  height: 520px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+
+.geo-disclaimer {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 6px 12px;
+  border-radius: 2px;
+  margin-bottom: 16px;
+  display: inline-block;
+  letter-spacing: 0.08em;
+}
 </style>
 </head>
 <body class="view2">
@@ -409,6 +537,8 @@ footer {
   <span class="view-label">View —</span>
   <button class="view-btn" id="btn1" onclick="setView(1)">① Simple</button>
   <button class="view-btn active" id="btn2" onclick="setView(2)">② Tags + AXI detail</button>
+  <button class="view-btn" id="btn3" onclick="setView(3)">③ Coordinate Map</button>
+  <button class="view-btn" id="btn4" onclick="setView(4)">④ World Map</button>
   <span class="expand-hint" id="hint">↓ click any row to expand</span>
 </div>
 
@@ -1110,13 +1240,390 @@ footer {
 
 </div><!-- /timeline -->
 
+<!-- ── VIEW 3: Coordinate Mapping ── -->
+<div id="view-map">
+  <div class="map-disclaimer">⚠ Provisional sample coordinates — for discussion only, not definitive positions</div>
+  <div class="axis-selector">
+    <span class="axis-label">X axis —</span>
+    <select class="axis-select" id="xAxis" onchange="drawCoord()">
+      <option value="0">Meta degree (micro ↔ meta)</option>
+      <option value="1" selected>Absolute ↔ Relative</option>
+      <option value="2">Language-dependent ↔ Embodied/Relational</option>
+    </select>
+    <span class="axis-label" style="margin-left:12px">Y axis —</span>
+    <select class="axis-select" id="yAxis" onchange="drawCoord()">
+      <option value="0" selected>Meta degree (micro ↔ meta)</option>
+      <option value="1">Absolute ↔ Relative</option>
+      <option value="2">Language-dependent ↔ Embodied/Relational</option>
+    </select>
+    <span class="axis-label" style="margin-left:12px;color:var(--ink-faint)">click = info · 2nd click = compare</span>
+  </div>
+  <div class="coord-canvas-wrap">
+    <canvas id="coordCanvas"></canvas>
+  </div>
+  <div class="coord-info" id="coordInfo">
+    <div class="coord-info-empty" id="coordEmpty">→ Click a point or area to see details. Click two to compare.</div>
+    <div class="coord-info-content" id="coordContent">
+      <div class="info-name" id="infoName"></div>
+      <div class="info-coords" id="infoCoords"></div>
+      <div class="info-desc" id="infoDesc"></div>
+      <div class="compare-banner" id="compareBanner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── VIEW 4: World Map ── -->
+<div id="view-geo">
+  <div class="geo-disclaimer">⚠ Origin/primary region — approximate locations</div>
+  <div id="map-leaflet"></div>
+  <div style="margin-top:10px;font-family:var(--mono);font-size:9px;color:var(--ink-faint)">Click markers for details</div>
+</div>
+
 <footer>
-  AXI · Philosophy & AXI Comparative Timeline · Sample for AXI paper (Draft v0.3, 2026)<br>
+  AXI · Philosophy &amp; AXI Comparative Timeline · Sample for AXI paper (Draft v0.3, 2026)<br>
   Full interactive version in development · Oral / indigenous traditions (Ⓞ) to be expanded in subsequent work<br>
   Related: AXES: Axes of Epistemic System (Draft v0.6, 2026.03.28) — Zenodo DOI: 10.5281/zenodo.19264332
 </footer>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
 <script>
+// ── Thinker data ──
+const AXIS_NAMES = [
+  'Meta degree\n(micro ↔ meta)',
+  'Absolute ↔ Relative',
+  'Language ↔ Embodied/\nRelational'
+];
+const AXIS_LABELS = [
+  ['micro','meta'],
+  ['absolute','relative'],
+  ['language','embodied']
+];
+
+const thinkers = [
+  {
+    id:'laozhuang', name:'Laozi & Zhuangzi', region:'China',
+    coords:[[0.7,0.95],[0.6,0.9],[0.7,0.9]],  // [min,max] per axis
+    type:'area', color:'#2a7a4a',
+    desc:'Dao as open possibility. Meta-perspective as release, not control. Multi-axis valuation (uselessness of the useless). Resonance: AXI source ①.',
+    geo:[34.0,108.9]
+  },
+  {
+    id:'nagarjuna', name:'Nāgārjuna / Buddhism', region:'India',
+    coords:[[0.6,0.9],[0.05,0.2],[0.3,0.6]],
+    type:'area', color:'#6b3280',
+    desc:'Śūnyatā: no fixed essence. Two-truth doctrine — conventional and ultimate. Resonance: AXI source ②. Difference: dissolves axes rather than provisionally retaining them.',
+    geo:[17.0,78.5]
+  },
+  {
+    id:'socrates', name:'Socrates', region:'Greece',
+    coords:[[0.6,0.6],[0.5,0.5],[0.6,0.6]],
+    type:'point', color:'#8a2c2c',
+    desc:'Aporia as difference-recognition. The unexamined life — epistemic humility as starting point. Effective domain: situations of over-confident certainty.',
+    geo:[37.97,23.73]
+  },
+  {
+    id:'plato', name:'Plato', region:'Greece',
+    coords:[[0.9,0.9],[0.9,0.9],[0.8,0.8]],
+    type:'point', color:'#8a2c2c',
+    desc:'Fixed Ideas as absolute reality. Knowledge as recollection of eternal forms. Effective domain: establishing stable universal standards. Difference: AXI treats no axis as absolute.',
+    geo:[37.97,23.73]
+  },
+  {
+    id:'aristotle', name:'Aristotle', region:'Greece',
+    coords:[[0.3,0.7],[0.6,0.8],[0.4,0.7]],
+    type:'area', color:'#8a2c2c',
+    desc:'From logic to biology to politics — multi-domain systematiser. Empirical observation as epistemic ground. Effective domain: classification, causation, virtue ethics.',
+    geo:[40.6,22.9]
+  },
+  {
+    id:'descartes', name:'Descartes', region:'France',
+    coords:[[0.8,0.8],[0.95,0.95],[0.9,0.9]],
+    type:'point', color:'#2c5f8a',
+    desc:'Cogito ergo sum — subject as fixed absolute origin. Method of doubt to establish certainty. Effective domain: grounding inquiry when all else uncertain.',
+    geo:[47.9,1.9]
+  },
+  {
+    id:'hume', name:'Hume', region:'Scotland',
+    coords:[[0.3,0.3],[0.1,0.1],[0.3,0.3]],
+    type:'point', color:'#2c5f8a',
+    desc:'Causality as habit, not necessity. Radical empiricism. Effective domain: challenging over-confident causal claims. Difference: scepticism without provisional operational ground.',
+    geo:[55.95,-3.19]
+  },
+  {
+    id:'kant', name:'Kant', region:'Prussia',
+    coords:[[0.85,0.85],[0.75,0.75],[0.8,0.8]],
+    type:'point-mid', color:'#7a5c1e',
+    desc:'A priori cognitive frameworks precede experience. Container before content. Effective domain: universal moral law, structuring experience. Difference: AXI denies innate frameworks.',
+    geo:[54.7,20.5]
+  },
+  {
+    id:'wittgenstein', name:'Wittgenstein', region:'Austria/UK',
+    coords:[[0.4,0.7],[0.1,0.3],[0.8,0.95]],
+    type:'area', color:'#4a6b5c',
+    desc:'Language games — meaning as use. "Whereof one cannot speak, thereof one must be silent." Effective domain: dissolving philosophical pseudo-problems through linguistic analysis.',
+    geo:[48.2,16.37]
+  },
+  {
+    id:'einstein', name:'Einstein', region:'Germany/Switzerland',
+    coords:[[0.5,0.9],[0.3,0.5],[0.5,0.7]],
+    type:'area', color:'#4a6b5c',
+    desc:'No absolute frame — all inertial frames equally valid. Local optimisation within defined domain. AXI source ③. Difference: rejected quantum indeterminacy ("God does not play dice").',
+    geo:[48.52,9.05]
+  },
+  {
+    id:'quantum', name:'Quantum Mechanics', region:'Europe (multiple)',
+    coords:[[0.7,0.9],[0.05,0.2],[0.7,0.9]],
+    type:'area', color:'#4a6b5c',
+    desc:'Observer affects observation. Probability replaces determinism. Bohr, Heisenberg, Schrödinger. Contrast with Einstein: same domain, radically different coordinates on absolute↔relative axis.',
+    geo:[55.68,12.57]
+  },
+  {
+    id:'levistrauss', name:'Lévi-Strauss', region:'France/Americas',
+    coords:[[0.5,0.8],[0.3,0.6],[0.3,0.6]],
+    type:'area', color:'#2c5f8a',
+    desc:'Structural anthropology — deep patterns beneath surface diversity. Bricolage vs engineering. Japanese culture: tolerance of contradiction. Resonance: AXE-L precursor.',
+    geo:[48.85,2.35]
+  },
+  {
+    id:'ibnSina', name:'Ibn Sīnā (Avicenna)', region:'Persia',
+    coords:[[0.8,0.8],[0.8,0.8],[0.7,0.7]],
+    type:'point', color:'#8a5c2c',
+    desc:'Floating Man thought experiment — self-awareness without body. Synthesis of Aristotle and Neoplatonism in Islamic context. Effective domain: metaphysics, medicine, logic.',
+    geo:[39.67,66.96]
+  },
+  {
+    id:'ghazali', name:'Al-Ghazālī', region:'Persia',
+    coords:[[0.6,0.8],[0.4,0.6],[0.2,0.5]],
+    type:'area', color:'#8a5c2c',
+    desc:'Incoherence of the Philosophers — reason\'s limits shown by reason. Direct mystical knowledge (kashf) beyond language. Effective domain: limits of rationalism, spiritual epistemology.',
+    geo:[36.3,59.6]
+  },
+  {
+    id:'axi', name:'AXI', region:'Global / 2026',
+    coords:[[0.0,1.0],[0.0,1.0],[0.0,1.0]],
+    type:'all', color:'#8b4513',
+    desc:'All knowledge begins with difference-recognition. No axis is absolute; local optimisation is valid. Meta and micro circulate — neither is fixed. AXES: coordinate protocol. AXE-L: educational application.',
+    geo:[52.66,-8.63]
+  }
+];
+
+// ── Canvas coordinate map ──
+let canvas, ctx, W, H, PAD;
+let selectedIds = [];
+let mapInited = false;
+
+function initCanvas() {
+  canvas = document.getElementById('coordCanvas');
+  if (!canvas) return;
+  const wrap = canvas.parentElement;
+  W = wrap.clientWidth;
+  H = 580;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  PAD = 64;
+  canvas.onclick = onCanvasClick;
+  drawCoord();
+}
+
+function toCanvasX(v) { return PAD + v * (W - PAD*2); }
+function toCanvasY(v) { return H - PAD - v * (H - PAD*2); }
+
+function drawCoord() {
+  if (!ctx) return;
+  const xi = parseInt(document.getElementById('xAxis').value);
+  const yi = parseInt(document.getElementById('yAxis').value);
+  ctx.clearRect(0, 0, W, H);
+
+  // background
+  ctx.fillStyle = '#fdfcf8';
+  ctx.fillRect(0, 0, W, H);
+
+  // grid lines
+  ctx.strokeStyle = '#ddd8ce';
+  ctx.lineWidth = 1;
+  for (let i=0; i<=4; i++) {
+    const x = toCanvasX(i/4), y = toCanvasY(i/4);
+    ctx.beginPath(); ctx.moveTo(x,PAD); ctx.lineTo(x,H-PAD); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD,y); ctx.lineTo(W-PAD,y); ctx.stroke();
+  }
+
+  // axes
+  ctx.strokeStyle = '#1a1814';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(PAD,H-PAD); ctx.lineTo(W-PAD,H-PAD); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(PAD,PAD); ctx.lineTo(PAD,H-PAD); ctx.stroke();
+
+  // axis labels
+  ctx.fillStyle = '#6b6459';
+  ctx.font = '9px JetBrains Mono, monospace';
+  ctx.textAlign = 'center';
+  const xLabels = AXIS_LABELS[xi];
+  ctx.fillText(xLabels[0], PAD, H-PAD+18);
+  ctx.fillText(xLabels[1], W-PAD, H-PAD+18);
+  ctx.save();
+  ctx.translate(16, H/2);
+  ctx.rotate(-Math.PI/2);
+  const yLabels = AXIS_LABELS[yi];
+  ctx.fillText(yLabels[0], -30, 0);
+  ctx.fillText(yLabels[1], 30, 0);
+  ctx.restore();
+
+  // draw thinkers
+  thinkers.forEach(t => {
+    const xv = t.coords[xi], yv = t.coords[yi];
+    const xmin = xv[0], xmax = xv[1], ymin = yv[0], ymax = yv[1];
+    const cx = toCanvasX((xmin+xmax)/2), cy = toCanvasY((ymin+ymax)/2);
+    const isSelected = selectedIds.includes(t.id);
+    const alpha = selectedIds.length > 0 && !isSelected ? 0.3 : 1.0;
+
+    ctx.globalAlpha = alpha;
+
+    if (t.type === 'all') {
+      // AXI: full area with border
+      ctx.strokeStyle = t.color;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6,4]);
+      ctx.strokeRect(PAD+4, PAD+4, W-PAD*2-8, H-PAD*2-8);
+      ctx.setLineDash([]);
+      ctx.fillStyle = t.color + '10';
+      ctx.fillRect(PAD+4, PAD+4, W-PAD*2-8, H-PAD*2-8);
+      ctx.fillStyle = t.color;
+      ctx.font = 'bold 11px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('AXI — all domains / variable', W/2, PAD+18);
+    } else if (t.type === 'area') {
+      const x1 = toCanvasX(xmin), x2 = toCanvasX(xmax);
+      const y1 = toCanvasY(ymax), y2 = toCanvasY(ymin);
+      const w = x2-x1, h = y2-y1;
+      ctx.fillStyle = t.color + '22';
+      ctx.strokeStyle = t.color + 'aa';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(x1, y1, w, h, 6);
+      ctx.fill(); ctx.stroke();
+      // center dot
+      ctx.fillStyle = t.color;
+      ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI*2); ctx.fill();
+    } else {
+      // point or point-mid
+      ctx.fillStyle = t.color;
+      ctx.beginPath(); ctx.arc(cx, cy, t.type==='point-mid'?7:5, 0, Math.PI*2); ctx.fill();
+      if (t.type==='point-mid') {
+        ctx.strokeStyle = t.color;
+        ctx.lineWidth=1.5;
+        ctx.beginPath(); ctx.arc(cx,cy,10,0,Math.PI*2); ctx.stroke();
+      }
+    }
+
+    // label
+    if (t.type !== 'all') {
+      ctx.fillStyle = isSelected ? t.color : '#1a1814';
+      ctx.font = isSelected ? 'bold 10px Inter,sans-serif' : '10px Inter,sans-serif';
+      ctx.textAlign = cx > W*0.75 ? 'right' : cx < W*0.25 ? 'left' : 'center';
+      const ly = cy - (t.type==='area' ? (toCanvasY(ymin)-toCanvasY(ymax))/2 + 12 : 10);
+      ctx.fillText(t.name, cx, ly);
+    }
+
+    ctx.globalAlpha = 1;
+  });
+}
+
+function onCanvasClick(e) {
+  const xi = parseInt(document.getElementById('xAxis').value);
+  const yi = parseInt(document.getElementById('yAxis').value);
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+
+  let hit = null;
+  let minDist = Infinity;
+  thinkers.forEach(t => {
+    if (t.type === 'all') return;
+    const xv = t.coords[xi], yv = t.coords[yi];
+    const cx = toCanvasX((xv[0]+xv[1])/2);
+    const cy = toCanvasY((yv[0]+yv[1])/2);
+    const d = Math.hypot(mx-cx, my-cy);
+    if (d < 30 && d < minDist) { minDist = d; hit = t; }
+    if (t.type==='area') {
+      const x1=toCanvasX(xv[0]),x2=toCanvasX(xv[1]);
+      const y1=toCanvasY(yv[1]),y2=toCanvasY(yv[0]);
+      if (mx>=x1&&mx<=x2&&my>=y1&&my<=y2 && d < minDist) { minDist=d; hit=t; }
+    }
+  });
+  // AXI click
+  if (!hit) {
+    const axiT = thinkers.find(t=>t.type==='all');
+    if (mx>PAD&&mx<W-PAD&&my>PAD&&my<H-PAD) hit=axiT;
+  }
+  if (!hit) { selectedIds=[]; drawCoord(); showInfo(null,null); return; }
+
+  if (selectedIds.includes(hit.id)) {
+    selectedIds = selectedIds.filter(id=>id!==hit.id);
+  } else if (selectedIds.length >= 2) {
+    selectedIds = [selectedIds[1], hit.id];
+  } else {
+    selectedIds.push(hit.id);
+  }
+  drawCoord();
+  const sel = thinkers.filter(t=>selectedIds.includes(t.id));
+  showInfo(sel[0]||null, sel[1]||null);
+}
+
+function showInfo(t1, t2) {
+  const empty = document.getElementById('coordEmpty');
+  const content = document.getElementById('coordContent');
+  if (!t1) { empty.style.display='block'; content.classList.remove('active'); return; }
+  empty.style.display='none'; content.classList.add('active');
+  const xi = parseInt(document.getElementById('xAxis').value);
+  const yi = parseInt(document.getElementById('yAxis').value);
+
+  document.getElementById('infoName').textContent = t1.name + (t2 ? ' · ' + t2.name : '');
+  const c1x=t1.coords[xi], c1y=t1.coords[yi];
+  let coordStr = `${AXIS_LABELS[xi][0]}↔${AXIS_LABELS[xi][1]}: ${c1x[0]===c1x[1]?c1x[0].toFixed(2):c1x[0].toFixed(2)+'–'+c1x[1].toFixed(2)}  |  ${AXIS_LABELS[yi][0]}↔${AXIS_LABELS[yi][1]}: ${c1y[0]===c1y[1]?c1y[0].toFixed(2):c1y[0].toFixed(2)+'–'+c1y[1].toFixed(2)}`;
+  document.getElementById('infoCoords').textContent = coordStr;
+  document.getElementById('infoDesc').textContent = t1.desc;
+
+  if (t2) {
+    const c2x=t2.coords[xi], c2y=t2.coords[yi];
+    const dx = Math.abs((c1x[0]+c1x[1])/2-(c2x[0]+c2x[1])/2);
+    const dy = Math.abs((c1y[0]+c1y[1])/2-(c2y[0]+c2y[1])/2);
+    document.getElementById('compareBanner').textContent =
+      `Comparing with ${t2.name} · X-axis distance: ${dx.toFixed(2)} · Y-axis distance: ${dy.toFixed(2)}`;
+    document.getElementById('infoDesc').textContent = t1.desc + '\n\n' + t2.name + ': ' + t2.desc;
+  } else {
+    document.getElementById('compareBanner').textContent = '';
+  }
+}
+
+// ── Leaflet world map ──
+let leafletInited = false;
+function initLeaflet() {
+  if (leafletInited) return;
+  leafletInited = true;
+  const map = L.map('map-leaflet').setView([30,20],2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap',maxZoom:10
+  }).addTo(map);
+
+  thinkers.filter(t=>t.geo).forEach(t=>{
+    const col = t.color;
+    const icon = L.divIcon({
+      className:'',
+      html:`<div style="width:12px;height:12px;border-radius:50%;background:${col};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>`,
+      iconSize:[12,12], iconAnchor:[6,6]
+    });
+    L.marker(t.geo, {icon}).addTo(map)
+      .bindPopup(`<b>${t.name}</b><br><span style="font-size:11px;color:#666">${t.region}</span><br><span style="font-size:11px">${t.desc.substring(0,120)}…</span>`);
+  });
+}
+
+// ── View switching ──
 function toggle(row) {
   if (document.body.classList.contains('view1')) return;
   row.classList.toggle('open');
@@ -1124,14 +1631,18 @@ function toggle(row) {
 
 function setView(n) {
   document.body.className = 'view' + n;
-  document.getElementById('btn1').classList.toggle('active', n === 1);
-  document.getElementById('btn2').classList.toggle('active', n === 2);
-  document.getElementById('hint').style.display = n === 1 ? 'none' : 'inline';
-  document.getElementById('legend').classList.toggle('hidden', n === 1);
-  if (n === 1) {
-    document.querySelectorAll('.tl-row').forEach(r => r.classList.remove('open'));
-  }
+  [1,2,3,4].forEach(i=>{
+    const b=document.getElementById('btn'+i);
+    if(b) b.classList.toggle('active', i===n);
+  });
+  document.getElementById('hint').style.display = n===1?'none':'inline';
+  document.getElementById('legend').classList.toggle('hidden', n===1||n===3||n===4);
+  if (n===1) document.querySelectorAll('.tl-row').forEach(r=>r.classList.remove('open'));
+  if (n===3) { setTimeout(initCanvas,50); }
+  if (n===4) { setTimeout(initLeaflet,50); }
 }
+
+window.addEventListener('resize', ()=>{ if(document.body.classList.contains('view3')) initCanvas(); });
 </script>
 </body>
 </html>
